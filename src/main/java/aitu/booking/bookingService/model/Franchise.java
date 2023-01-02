@@ -10,7 +10,7 @@ import java.util.List;
 
 @Entity
 @ToString
-@Table(name = "restaurants")
+@Table(name = "franchises")
 @Getter
 @Setter
 @NoArgsConstructor
