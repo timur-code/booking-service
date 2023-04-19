@@ -56,7 +56,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
             if (realmAccess == null) {
                 return new ArrayList<>();
             }
-
+            log.info("realmAccess: {}", realmAccess.get("roles"));
 
 
             List<GrantedAuthority> roles = ((List<String>) realmAccess.get("roles")).stream()

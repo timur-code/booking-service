@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.management.InstanceNotFoundException;
 
-@Secured("ROLE_user")
+@Secured("ROLE_restaurant_admin")
 @RestController
 @RequestMapping("/api/menu")
 public class MenuController {

@@ -5,16 +5,18 @@ import aitu.booking.bookingService.dto.create.CreateBookingDTO;
 import aitu.booking.bookingService.dto.create.CreateMenuDTO;
 import aitu.booking.bookingService.dto.create.CreateRestaurantDTO;
 import aitu.booking.bookingService.dto.responses.ResponseSuccessWithData;
+import aitu.booking.bookingService.exception.ApiException;
 import aitu.booking.bookingService.model.Booking;
 import aitu.booking.bookingService.model.Restaurant;
 import aitu.booking.bookingService.service.RestaurantService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.annotation.Secured;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import javax.management.InstanceNotFoundException;
 
-@Secured("ROLE_user")
+@Secured("ROLE_restaurant_admin")
 @RestController
 @RequestMapping("/api/restaurant")
 public class RestaurantController extends BaseController {
@@ -31,9 +33,11 @@ public class RestaurantController extends BaseController {
     }
 
     @PostMapping("/{id}/booking")
-    public ResponseSuccessWithData<Booking> bookRestaurant(@PathVariable Long id, @RequestBody CreateBookingDTO bookingDTO) {
+    public ResponseSuccessWithData<Booking> bookRestaurant(@PathVariable Long id,
+                                                           @RequestBody CreateBookingDTO bookingDTO,
+                                                           Authentication authentication) {
         try {
-            Booking booking = restaurantService.addBooking(id, bookingDTO);
+            Booking booking = restaurantService.addBooking(id, bookingDTO, authentication);
             return new ResponseSuccessWithData<>(booking);
         } catch (InstanceNotFoundException ex) {
             throw new RuntimeException(ex);
@@ -52,7 +56,7 @@ public class RestaurantController extends BaseController {
             Restaurant restaurant = restaurantService.addMenu(id, menuDTO);
             return new ResponseSuccessWithData<>(restaurant);
         } catch (InstanceNotFoundException e) {
-            throw new RuntimeException(e);
+            throw new ApiException("404");
         }
     }
 

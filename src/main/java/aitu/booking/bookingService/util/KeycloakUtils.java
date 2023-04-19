@@ -2,11 +2,14 @@ package aitu.booking.bookingService.util;
 
 import aitu.booking.bookingService.dto.auth.UserDTO;
 import org.keycloak.representations.idm.UserRepresentation;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 import org.springframework.util.StringUtils;
 
 import java.time.Instant;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
+import java.util.UUID;
 
 public class KeycloakUtils {
     public static UserDTO convertToUserDTO(UserRepresentation userRepresentation) {
@@ -55,6 +58,11 @@ public class KeycloakUtils {
                 (StringUtils.hasLength(patronymic) ? patronymic : "");
 
         return fullname.trim();
+    }
+
+
+    public static UUID getUserUuidFromAuth(Authentication authentication) {
+        return UUID.fromString(((JwtAuthenticationToken) authentication).getToken().getSubject());
     }
 
 }

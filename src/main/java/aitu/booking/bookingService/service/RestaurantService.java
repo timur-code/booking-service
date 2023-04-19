@@ -7,7 +7,9 @@ import aitu.booking.bookingService.model.Booking;
 import aitu.booking.bookingService.model.Menu;
 import aitu.booking.bookingService.model.Restaurant;
 import aitu.booking.bookingService.repository.RestaurantRepository;
+import aitu.booking.bookingService.util.KeycloakUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -43,9 +45,10 @@ public class RestaurantService extends BaseService {
     }
 
     @Transactional
-    public Booking addBooking(Long restaurantId, CreateBookingDTO bookingDTO) throws InstanceNotFoundException {
+    public Booking addBooking(Long restaurantId, CreateBookingDTO bookingDTO, Authentication authentication)
+            throws InstanceNotFoundException {
         Restaurant restaurant = getRestaurantById(restaurantId);
-        Booking booking = bookingService.createBooking(bookingDTO);
+        Booking booking = bookingService.createBooking(bookingDTO, KeycloakUtils.getUserUuidFromAuth(authentication));
         restaurant.addBooking(booking);
         restaurantRepository.save(restaurant);
         return booking;

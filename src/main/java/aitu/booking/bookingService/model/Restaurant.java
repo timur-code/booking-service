@@ -4,8 +4,10 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
+import org.hibernate.annotations.Fetch;
 
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import java.util.ArrayList;
@@ -22,7 +24,7 @@ public class Restaurant extends BaseModel {
     private String description;
     @OneToMany
     private List<Menu> menuList;
-    @OneToMany
+    @OneToMany(fetch = FetchType.LAZY)
     private List<Booking> bookings;
 
 
