@@ -5,22 +5,30 @@ import aitu.booking.bookingService.dto.create.CreateBookingDTO;
 import aitu.booking.bookingService.dto.create.CreateMenuDTO;
 import aitu.booking.bookingService.dto.create.CreateRestaurantDTO;
 import aitu.booking.bookingService.dto.responses.ResponseSuccessWithData;
+import aitu.booking.bookingService.dto.restaurant.RestaurantSmallDTO;
 import aitu.booking.bookingService.exception.ApiException;
 import aitu.booking.bookingService.model.Booking;
 import aitu.booking.bookingService.model.Restaurant;
 import aitu.booking.bookingService.service.RestaurantService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import javax.management.InstanceNotFoundException;
 
-@Secured("ROLE_restaurant_admin")
 @RestController
 @RequestMapping("/api/restaurant")
 public class RestaurantController extends BaseController {
     private RestaurantService restaurantService;
+
+    @GetMapping("/list")
+    public Page<RestaurantSmallDTO> list(@RequestParam(required = false, defaultValue = "1") int page,
+                                         @RequestParam(required = false, defaultValue = "100") int size) {
+        return restaurantService.list(page, size);
+    }
+
 
     @GetMapping("/{id}")
     public ResponseSuccessWithData<Restaurant> getRestaurant(@PathVariable Long id) {

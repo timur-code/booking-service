@@ -3,12 +3,16 @@ package aitu.booking.bookingService.service;
 import aitu.booking.bookingService.dto.create.CreateBookingDTO;
 import aitu.booking.bookingService.dto.create.CreateMenuDTO;
 import aitu.booking.bookingService.dto.create.CreateRestaurantDTO;
+import aitu.booking.bookingService.dto.restaurant.RestaurantSmallDTO;
 import aitu.booking.bookingService.model.Booking;
 import aitu.booking.bookingService.model.Menu;
 import aitu.booking.bookingService.model.Restaurant;
 import aitu.booking.bookingService.repository.RestaurantRepository;
 import aitu.booking.bookingService.util.KeycloakUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -21,6 +25,11 @@ public class RestaurantService extends BaseService {
     private MenuService menuService;
     private MenuItemService menuItemService;
     private BookingService bookingService;
+
+    public Page<RestaurantSmallDTO> list(int page, int size) {
+        return restaurantRepository.findAll(PageRequest.of(--page, size))
+                .map(this::toSmallDTO);
+    }
 
     @Transactional(readOnly = true)
     public Restaurant getRestaurantById(Long id) throws InstanceNotFoundException {
@@ -52,6 +61,14 @@ public class RestaurantService extends BaseService {
         restaurant.addBooking(booking);
         restaurantRepository.save(restaurant);
         return booking;
+    }
+
+    private RestaurantSmallDTO toSmallDTO(Restaurant restaurant) {
+        return RestaurantSmallDTO.builder()
+                .id(restaurant.getId())
+                .name(restaurant.getName())
+                .description(restaurant.getDescription())
+                .build();
     }
 
     @Autowired
