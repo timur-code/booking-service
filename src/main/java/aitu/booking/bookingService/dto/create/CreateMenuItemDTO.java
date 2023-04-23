@@ -9,6 +9,7 @@ import java.util.List;
 @Data
 @Builder
 public class CreateMenuItemDTO {
+    private Long menuId;
     private String name;
     private String description;
     @ElementCollection

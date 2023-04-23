@@ -2,6 +2,7 @@ package aitu.booking.bookingService.service;
 
 import aitu.booking.bookingService.dto.AddItemToMenuDTO;
 import aitu.booking.bookingService.dto.create.CreateMenuDTO;
+import aitu.booking.bookingService.dto.create.CreateMenuItemDTO;
 import aitu.booking.bookingService.model.Menu;
 import aitu.booking.bookingService.model.MenuItem;
 import aitu.booking.bookingService.repository.MenuRepository;
@@ -29,8 +30,8 @@ public class MenuService extends BaseService {
     }
 
     @Transactional
-    public Menu addItemToMenu(AddItemToMenuDTO dto) throws InstanceNotFoundException {
-        MenuItem menuItem = menuItemService.getMenuItemById(dto.getItemId());
+    public Menu addItemToMenu(CreateMenuItemDTO dto) throws InstanceNotFoundException {
+        MenuItem menuItem = menuItemService.createMenuItem(dto);
         Menu menu = getMenu(dto.getMenuId());
         menu.addMenuItem(menuItem);
         return menuRepository.save(menu);

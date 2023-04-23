@@ -1,12 +1,17 @@
 package aitu.booking.bookingService.controller.api;
 
-import aitu.booking.bookingService.dto.AddItemToMenuDTO;
-import aitu.booking.bookingService.dto.responses.ResponseSuccessWithData;
-import aitu.booking.bookingService.model.Menu;
+import aitu.booking.bookingService.dto.create.CreateMenuItemDTO;
+import aitu.booking.bookingService.dto.responses.ResponseFail;
+import aitu.booking.bookingService.dto.responses.ResponseSuccess;
+import aitu.booking.bookingService.dto.responses.StatusResponse;
 import aitu.booking.bookingService.service.MenuService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.annotation.Secured;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 import javax.management.InstanceNotFoundException;
 
@@ -17,12 +22,12 @@ public class MenuController {
     private MenuService menuService;
 
     @PostMapping("/item")
-    public ResponseSuccessWithData<Menu> addItemToMenu(@RequestBody AddItemToMenuDTO dto) {
+    public ResponseEntity<StatusResponse> addItemToMenu(@RequestBody CreateMenuItemDTO dto) {
         try {
-            Menu menu = menuService.addItemToMenu(dto);
-            return new ResponseSuccessWithData<>(menu);
+            menuService.addItemToMenu(dto);
+            return ResponseEntity.ok(new ResponseSuccess());
         } catch (InstanceNotFoundException ex) {
-            throw new RuntimeException(ex);
+            return ResponseEntity.badRequest().body(new ResponseFail(ex.getMessage()));
         }
     }
 

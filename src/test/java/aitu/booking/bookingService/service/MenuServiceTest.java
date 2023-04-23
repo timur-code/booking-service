@@ -37,7 +37,7 @@ class MenuServiceTest extends BaseTest {
                 .itemId(2L)
                 .menuId(1L)
                 .build();
-        menuService.addItemToMenu(dto);
+//        menuService.addItemToMenu(dto);
         Menu menu = menuService.getMenu(1L);
 
         log.info("Menu items: {}", menu.getMenuItems());

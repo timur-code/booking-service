@@ -8,11 +8,11 @@ import aitu.booking.bookingService.dto.responses.ResponseSuccessWithData;
 import aitu.booking.bookingService.dto.restaurant.RestaurantSmallDTO;
 import aitu.booking.bookingService.exception.ApiException;
 import aitu.booking.bookingService.model.Booking;
+import aitu.booking.bookingService.model.Menu;
 import aitu.booking.bookingService.model.Restaurant;
 import aitu.booking.bookingService.service.RestaurantService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
-import org.springframework.security.access.annotation.Secured;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
@@ -31,12 +31,22 @@ public class RestaurantController extends BaseController {
 
 
     @GetMapping("/{id}")
-    public ResponseSuccessWithData<Restaurant> getRestaurant(@PathVariable Long id) {
+    public ResponseSuccessWithData<RestaurantSmallDTO> getRestaurant(@PathVariable Long id) {
         try {
-            Restaurant restaurant = restaurantService.getRestaurantById(id);
+            RestaurantSmallDTO restaurant = restaurantService.getRestaurantSmallById(id);
             return new ResponseSuccessWithData<>(restaurant);
         } catch (InstanceNotFoundException ex) {
-            throw new RuntimeException(ex);
+            throw new ApiException("404", ex.getMessage());
+        }
+    }
+
+    @GetMapping("/{id}/menu")
+    public ResponseSuccessWithData<Menu> getRestaurantMenu(@PathVariable Long id) {
+        try {
+            Menu menu = restaurantService.getRestaurantMenu(id);
+            return new ResponseSuccessWithData<>(menu);
+        } catch (InstanceNotFoundException | IndexOutOfBoundsException ex) {
+            throw new ApiException("404", ex.getMessage());
         }
     }
 

@@ -6,6 +6,7 @@ import aitu.booking.bookingService.dto.create.CreateRestaurantDTO;
 import aitu.booking.bookingService.dto.restaurant.RestaurantSmallDTO;
 import aitu.booking.bookingService.model.Booking;
 import aitu.booking.bookingService.model.Menu;
+import aitu.booking.bookingService.model.MenuItem;
 import aitu.booking.bookingService.model.Restaurant;
 import aitu.booking.bookingService.repository.RestaurantRepository;
 import aitu.booking.bookingService.util.KeycloakUtils;
@@ -29,6 +30,14 @@ public class RestaurantService extends BaseService {
     public Page<RestaurantSmallDTO> list(int page, int size) {
         return restaurantRepository.findAll(PageRequest.of(--page, size))
                 .map(this::toSmallDTO);
+    }
+
+    public Menu getRestaurantMenu(Long id) throws InstanceNotFoundException, IndexOutOfBoundsException {
+        return getRestaurantById(id).getMenuList().get(0);
+    }
+
+    public RestaurantSmallDTO getRestaurantSmallById(Long id) throws InstanceNotFoundException {
+        return toSmallDTO(getRestaurantById(id));
     }
 
     @Transactional(readOnly = true)
