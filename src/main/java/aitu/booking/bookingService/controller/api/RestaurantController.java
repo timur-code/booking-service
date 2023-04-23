@@ -50,18 +50,6 @@ public class RestaurantController extends BaseController {
         }
     }
 
-    @PostMapping("/{id}/booking")
-    public ResponseSuccessWithData<Booking> bookRestaurant(@PathVariable Long id,
-                                                           @RequestBody CreateBookingDTO bookingDTO,
-                                                           Authentication authentication) {
-        try {
-            Booking booking = restaurantService.addBooking(id, bookingDTO, authentication);
-            return new ResponseSuccessWithData<>(booking);
-        } catch (InstanceNotFoundException ex) {
-            throw new RuntimeException(ex);
-        }
-    }
-
     @PostMapping
     public ResponseSuccessWithData<Restaurant> createRestaurant(@RequestBody CreateRestaurantDTO restaurantDTO) {
         Restaurant restaurant = restaurantService.addRestaurant(restaurantDTO);

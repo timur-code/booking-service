@@ -20,6 +20,7 @@ import java.util.List;
 public class MenuItem extends BaseModel {
     private String name;
     private String description;
+    private Integer price;
     @ElementCollection
     private List<String> images;
 

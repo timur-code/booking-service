@@ -24,8 +24,6 @@ public class Restaurant extends BaseModel {
     private String description;
     @OneToMany
     private List<Menu> menuList;
-    @OneToMany(fetch = FetchType.LAZY)
-    private List<Booking> bookings;
 
 
     public void addMenu(Menu menu) {
@@ -33,12 +31,5 @@ public class Restaurant extends BaseModel {
             menuList = new ArrayList<>();
         }
         menuList.add(menu);
-    }
-
-    public void addBooking(Booking booking) {
-        if (bookings == null) {
-            bookings = new ArrayList<>();
-        }
-        bookings.add(booking);
     }
 }

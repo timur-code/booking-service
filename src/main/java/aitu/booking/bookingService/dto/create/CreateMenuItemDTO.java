@@ -11,6 +11,7 @@ import java.util.List;
 public class CreateMenuItemDTO {
     private Long menuId;
     private String name;
+    private Integer price;
     private String description;
     @ElementCollection
     private List<String> images;

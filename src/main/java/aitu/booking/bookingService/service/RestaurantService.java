@@ -24,8 +24,6 @@ import javax.management.InstanceNotFoundException;
 public class RestaurantService extends BaseService {
     private RestaurantRepository restaurantRepository;
     private MenuService menuService;
-    private MenuItemService menuItemService;
-    private BookingService bookingService;
 
     public Page<RestaurantSmallDTO> list(int page, int size) {
         return restaurantRepository.findAll(PageRequest.of(--page, size))
@@ -62,16 +60,6 @@ public class RestaurantService extends BaseService {
         return restaurantRepository.save(restaurant);
     }
 
-    @Transactional
-    public Booking addBooking(Long restaurantId, CreateBookingDTO bookingDTO, Authentication authentication)
-            throws InstanceNotFoundException {
-        Restaurant restaurant = getRestaurantById(restaurantId);
-        Booking booking = bookingService.createBooking(bookingDTO, KeycloakUtils.getUserUuidFromAuth(authentication));
-        restaurant.addBooking(booking);
-        restaurantRepository.save(restaurant);
-        return booking;
-    }
-
     private RestaurantSmallDTO toSmallDTO(Restaurant restaurant) {
         return RestaurantSmallDTO.builder()
                 .id(restaurant.getId())
@@ -90,13 +78,4 @@ public class RestaurantService extends BaseService {
         this.menuService = menuService;
     }
 
-    @Autowired
-    public void setMenuItemService(MenuItemService menuItemService) {
-        this.menuItemService = menuItemService;
-    }
-
-    @Autowired
-    public void setBookingService(BookingService bookingService) {
-        this.bookingService = bookingService;
-    }
 }
