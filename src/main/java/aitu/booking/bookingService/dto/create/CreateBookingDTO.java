@@ -9,6 +9,7 @@ import java.util.List;
 @Data
 @Builder
 public class CreateBookingDTO {
+    private Long id;
     private Long restaurantId;
     private ZonedDateTime timeStart;
     private List<Long> preorder;

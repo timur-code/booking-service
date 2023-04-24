@@ -6,6 +6,7 @@ import aitu.booking.bookingService.model.MenuItem;
 import aitu.booking.bookingService.model.Restaurant;
 import aitu.booking.bookingService.repository.BookingRepository;
 import aitu.booking.bookingService.util.KeycloakUtils;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
@@ -18,6 +19,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
+@Slf4j
 @Service
 public class BookingService {
     private BookingRepository bookingRepository;
@@ -25,15 +27,19 @@ public class BookingService {
     private RestaurantService restaurantService;
 
     @Transactional
-    public void addTempBooking(CreateBookingDTO bookingDTO, Authentication authentication) throws InstanceNotFoundException {
+    public Booking addTempBooking(CreateBookingDTO bookingDTO, Authentication authentication) throws InstanceNotFoundException, IllegalAccessException {
         Restaurant restaurant = restaurantService.getRestaurantById(bookingDTO.getRestaurantId());
         UUID userUuid = KeycloakUtils.getUserUuidFromAuth(authentication);
-        Optional<Booking> existingTempBooking = bookingRepository.findByUserUuidAndIsTempAndRestaurant(userUuid, true, restaurant);
-        existingTempBooking.ifPresent(booking -> bookingRepository.delete(booking));
-        createTempBooking(bookingDTO, restaurant, userUuid);
+        if (bookingDTO.getId() == null) {
+            Optional<Booking> existingTempBooking = bookingRepository.findByUserUuidAndIsTempAndRestaurant(userUuid, true, restaurant);
+            existingTempBooking.ifPresent(booking -> bookingRepository.delete(booking));
+            return createTempBooking(bookingDTO, restaurant, userUuid);
+        } else {
+            return updateTempBooking(bookingDTO, userUuid);
+        }
     }
 
-    private void createTempBooking(CreateBookingDTO bookingDTO, Restaurant restaurant, UUID userId) {
+    private Booking createTempBooking(CreateBookingDTO bookingDTO, Restaurant restaurant, UUID userId) {
         Booking booking = new Booking();
         booking.setUserUuid(userId);
         booking.setTimeStart(bookingDTO.getTimeStart());
@@ -43,7 +49,19 @@ public class BookingService {
         booking.setIsTemp(true);
         List<MenuItem> menuItems = menuItemService.getMenuItemList(bookingDTO.getPreorder());
         booking.setMenuItemList(menuItems);
-        bookingRepository.save(booking);
+        return bookingRepository.save(booking);
+    }
+
+    private Booking updateTempBooking(CreateBookingDTO bookingDTO, UUID userId)
+            throws InstanceNotFoundException, IllegalAccessException {
+        Booking booking = getBookingById(bookingDTO.getId());
+        if (!booking.getUserUuid().equals(userId)) {
+            throw new IllegalAccessException();
+        }
+        booking.setTimeStart(bookingDTO.getTimeStart());
+        List<MenuItem> menuItems = menuItemService.getMenuItemList(bookingDTO.getPreorder());
+        booking.setMenuItemList(menuItems);
+        return bookingRepository.save(booking);
     }
 
     @Transactional
