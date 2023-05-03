@@ -14,6 +14,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.annotation.Secured;
 import org.springframework.web.bind.annotation.*;
 
 import javax.management.InstanceNotFoundException;
@@ -53,6 +54,7 @@ public class RestaurantController extends BaseController {
         }
     }
 
+    @Secured({"ROLE_admin"})
     @PostMapping
     public ResponseSuccessWithData<Restaurant> createRestaurant(@RequestBody CreateRestaurantDTO restaurantDTO) {
         Restaurant restaurant = restaurantService.addRestaurant(restaurantDTO);
