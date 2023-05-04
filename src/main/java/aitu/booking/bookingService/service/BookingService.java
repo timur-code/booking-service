@@ -1,9 +1,7 @@
 package aitu.booking.bookingService.service;
 
 import aitu.booking.bookingService.dto.create.CreateBookingDTO;
-import aitu.booking.bookingService.model.Booking;
-import aitu.booking.bookingService.model.MenuItem;
-import aitu.booking.bookingService.model.Restaurant;
+import aitu.booking.bookingService.model.*;
 import aitu.booking.bookingService.repository.BookingRepository;
 import aitu.booking.bookingService.util.KeycloakUtils;
 import lombok.extern.slf4j.Slf4j;
@@ -11,13 +9,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.CollectionUtils;
 
 import javax.management.InstanceNotFoundException;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 
 @Slf4j
 @Service
@@ -47,8 +44,10 @@ public class BookingService {
         booking.setRestaurant(restaurant);
         booking.setIsActive(false);
         booking.setIsTemp(true);
-        List<MenuItem> menuItems = menuItemService.getMenuItemList(bookingDTO.getPreorder());
-        booking.setMenuItemList(menuItems);
+        if (!CollectionUtils.isEmpty(bookingDTO.getPreorder())) {
+            Order order = handleOrder(bookingDTO);
+            //TODO: Add payment to order
+        }
         return bookingRepository.save(booking);
     }
 
@@ -59,8 +58,12 @@ public class BookingService {
             throw new IllegalAccessException();
         }
         booking.setTimeStart(bookingDTO.getTimeStart());
-        List<MenuItem> menuItems = menuItemService.getMenuItemList(bookingDTO.getPreorder());
-        booking.setMenuItemList(menuItems);
+        if (!CollectionUtils.isEmpty(bookingDTO.getPreorder())) {
+            Order order = handleOrder(bookingDTO);
+            //TODO: Add payment to order
+        } else if (booking.getOrder() != null) {
+            booking.setOrder(null);
+        }
         return bookingRepository.save(booking);
     }
 
@@ -81,6 +84,21 @@ public class BookingService {
             throw new IllegalArgumentException();
         }
         bookingRepository.save(booking);
+    }
+
+    private Order handleOrder(CreateBookingDTO bookingDTO) {
+        Order order = new Order();
+        Set<Long> itemIds = bookingDTO.getPreorder().keySet();
+        List<MenuItem> menuItems = menuItemService.getMenuItemList(itemIds);
+        List<OrderItem> orderItems = new ArrayList<>();
+        menuItems.forEach(item -> {
+            OrderItem orderItem = new OrderItem();
+            orderItem.setMenuItem(item);
+            orderItem.setAmount(bookingDTO.getPreorder().get(item.getId()));
+            orderItems.add(orderItem);
+        });
+        order.setOrderItems(orderItems);
+        return order;
     }
 
     public Booking getBookingById(Long id) throws InstanceNotFoundException {

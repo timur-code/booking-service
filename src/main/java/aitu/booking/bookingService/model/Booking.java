@@ -6,10 +6,7 @@ import lombok.Setter;
 import lombok.ToString;
 import org.springframework.beans.factory.annotation.Value;
 
-import javax.persistence.Entity;
-import javax.persistence.ManyToMany;
-import javax.persistence.ManyToOne;
-import javax.persistence.Table;
+import javax.persistence.*;
 import java.time.LocalDateTime;
 import java.time.ZonedDateTime;
 import java.util.List;
@@ -29,6 +26,6 @@ public class Booking extends BaseModel{
     private ZonedDateTime dtCreate;
     private Boolean isActive;
     private Boolean isTemp;
-    @ManyToMany
-    private List<MenuItem> menuItemList;
+    @OneToOne(cascade = CascadeType.ALL)
+    private Order order;
 }

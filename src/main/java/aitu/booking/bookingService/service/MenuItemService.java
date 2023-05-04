@@ -9,6 +9,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.PostConstruct;
 import javax.management.InstanceNotFoundException;
+import java.util.Collection;
 import java.util.List;
 
 @Service
@@ -31,7 +32,7 @@ public class MenuItemService extends BaseService {
                 .orElseThrow(InstanceNotFoundException::new);
     }
 
-    public List<MenuItem> getMenuItemList(List<Long> itemIds) {
+    public List<MenuItem> getMenuItemList(Collection<Long> itemIds) {
         return itemRepository.findAllById(itemIds);
     }
 
