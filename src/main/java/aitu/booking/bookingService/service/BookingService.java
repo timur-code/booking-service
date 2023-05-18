@@ -3,6 +3,7 @@ package aitu.booking.bookingService.service;
 import aitu.booking.bookingService.dto.CartItemDTO;
 import aitu.booking.bookingService.dto.create.CreateBookingDTO;
 import aitu.booking.bookingService.model.Booking;
+import aitu.booking.bookingService.model.BookingItem;
 import aitu.booking.bookingService.model.MenuItem;
 import aitu.booking.bookingService.repository.BookingRepository;
 import aitu.booking.bookingService.util.KeycloakUtils;
@@ -36,11 +37,11 @@ public class BookingService {
         booking.setDtCreate(ZonedDateTime.now(ZoneId.of("Asia/Almaty")));
         booking.setTimeStart(bookingDTO.getTimeStart());
         if (!CollectionUtils.isEmpty(bookingDTO.getPreorder())) {
-            List<MenuItem> menuItems = menuItemService.getMenuItemList(
+            List<BookingItem> menuItems = menuItemService.getMenuItemList(
                     bookingDTO.getPreorder().stream()
                             .map(CartItemDTO::getItemId)
                             .collect(Collectors.toList())
-            );
+            ).stream().map(item -> BookingItem.builder().menuItem(item).build()).collect(Collectors.toList());
             booking.setMenuItemList(menuItems);
         }
         return bookingRepository.save(booking);
