@@ -1,9 +1,9 @@
 package aitu.booking.bookingService.service;
 
+import aitu.booking.bookingService.dto.CartItemDTO;
 import aitu.booking.bookingService.dto.create.CreateBookingDTO;
 import aitu.booking.bookingService.model.Booking;
 import aitu.booking.bookingService.model.MenuItem;
-import aitu.booking.bookingService.model.Restaurant;
 import aitu.booking.bookingService.repository.BookingRepository;
 import aitu.booking.bookingService.util.KeycloakUtils;
 import lombok.extern.slf4j.Slf4j;
@@ -11,13 +11,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.CollectionUtils;
 
 import javax.management.InstanceNotFoundException;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -26,9 +27,24 @@ public class BookingService {
     private MenuItemService menuItemService;
     private RestaurantService restaurantService;
 
-//    public Booking createBooking() {
-//
-//    }
+    @Transactional
+    public Booking createBooking(CreateBookingDTO bookingDTO, Authentication authentication) throws InstanceNotFoundException {
+        UUID userUuid = KeycloakUtils.getUserUuidFromAuth(authentication);
+        Booking booking = new Booking();
+        booking.setUserUuid(userUuid);
+        booking.setRestaurant(restaurantService.getRestaurantById(bookingDTO.getRestaurantId()));
+        booking.setDtCreate(ZonedDateTime.now(ZoneId.of("Asia/Almaty")));
+        booking.setTimeStart(bookingDTO.getTimeStart());
+        if (!CollectionUtils.isEmpty(bookingDTO.getPreorder())) {
+            List<MenuItem> menuItems = menuItemService.getMenuItemList(
+                    bookingDTO.getPreorder().stream()
+                            .map(CartItemDTO::getItemId)
+                            .collect(Collectors.toList())
+            );
+            booking.setMenuItemList(menuItems);
+        }
+        return bookingRepository.save(booking);
+    }
 
 //    @Transactional
 //    public Booking addTempBooking(CreateBookingDTO bookingDTO, Authentication authentication) throws InstanceNotFoundException, IllegalAccessException {
@@ -67,25 +83,6 @@ public class BookingService {
 //        booking.setMenuItemList(menuItems);
 //        return bookingRepository.save(booking);
 //    }
-
-    @Transactional
-    public void confirmBooking(Long id, Authentication authentication) throws InstanceNotFoundException,
-            IllegalAccessException, IllegalArgumentException {
-        UUID userUuid = KeycloakUtils.getUserUuidFromAuth(authentication);
-        Booking booking = getBookingById(id);
-        if (!userUuid.equals(booking.getUserUuid())) {
-            throw new IllegalAccessException();
-        }
-
-        if (!booking.getIsActive() && booking.getIsTemp() &&
-                booking.getTimeStart().isAfter(ZonedDateTime.now(ZoneId.of("Asia/Almaty")))) {
-            booking.setIsTemp(false);
-            booking.setIsActive(true);
-        } else {
-            throw new IllegalArgumentException();
-        }
-        bookingRepository.save(booking);
-    }
 
     public Booking getBookingById(Long id) throws InstanceNotFoundException {
         return bookingRepository.findById(id)

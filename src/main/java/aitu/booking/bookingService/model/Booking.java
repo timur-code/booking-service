@@ -27,8 +27,6 @@ public class Booking extends BaseModel{
     private Restaurant restaurant;
     private ZonedDateTime timeStart;
     private ZonedDateTime dtCreate;
-    private Boolean isActive;
-    private Boolean isTemp;
     @ManyToMany
     private List<MenuItem> menuItemList;
 }

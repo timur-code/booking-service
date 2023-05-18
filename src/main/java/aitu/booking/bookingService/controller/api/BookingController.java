@@ -23,30 +23,14 @@ import javax.management.InstanceNotFoundException;
 public class BookingController {
     private BookingService bookingService;
 
-//    @PostMapping
-//    public ResponseEntity<ResponseSuccessWithData<Booking>> bookRestaurant(@RequestBody CreateBookingDTO bookingDTO,
-//                                                                           Authentication authentication) {
-//        try {
-//            Booking booking = bookingService.addTempBooking(bookingDTO, authentication);
-//            return ResponseEntity.ok(new ResponseSuccessWithData<>(booking));
-//        } catch (InstanceNotFoundException e) {
-//            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
-//        } catch (IllegalAccessException e) {
-//            log.error("Error: {}\n{}", e.getMessage(), e);
-//            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
-//        }
-//    }
-
-    @PostMapping("/{id}/confirm")
-    public ResponseEntity<ResponseSuccess> confirmBooking(@PathVariable Long id,
-                                                          Authentication authentication) {
+    @PostMapping
+    public ResponseEntity<ResponseSuccessWithData<Booking>> bookRestaurant(@RequestBody CreateBookingDTO bookingDTO,
+                                                                           Authentication authentication) {
         try {
-            bookingService.confirmBooking(id, authentication);
-            return ResponseEntity.ok(new ResponseSuccess());
-        } catch (InstanceNotFoundException | IllegalArgumentException e) {
-            throw new ApiException(400, e.getMessage());
-        } catch (IllegalAccessException e) {
-            throw new ApiException(403, e.getMessage());
+            Booking booking = bookingService.createBooking(bookingDTO, authentication);
+            return ResponseEntity.ok(new ResponseSuccessWithData<>(booking));
+        } catch (InstanceNotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
         }
     }
 
