@@ -25,7 +25,7 @@ public class BookingController {
 
     @PostMapping
     public ResponseEntity<ResponseSuccessWithData<Booking>> bookRestaurant(@RequestBody CreateBookingDTO bookingDTO,
-                                                                  Authentication authentication) {
+                                                                           Authentication authentication) {
         try {
             Booking booking = bookingService.addTempBooking(bookingDTO, authentication);
             return ResponseEntity.ok(new ResponseSuccessWithData<>(booking));

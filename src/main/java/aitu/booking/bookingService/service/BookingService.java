@@ -26,6 +26,10 @@ public class BookingService {
     private MenuItemService menuItemService;
     private RestaurantService restaurantService;
 
+    public Booking createBooking() {
+
+    }
+
     @Transactional
     public Booking addTempBooking(CreateBookingDTO bookingDTO, Authentication authentication) throws InstanceNotFoundException, IllegalAccessException {
         Restaurant restaurant = restaurantService.getRestaurantById(bookingDTO.getRestaurantId());

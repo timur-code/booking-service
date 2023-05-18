@@ -1,5 +1,6 @@
 package aitu.booking.bookingService.dto.create;
 
+import aitu.booking.bookingService.dto.CartItemDTO;
 import lombok.Builder;
 import lombok.Data;
 
@@ -12,5 +13,5 @@ public class CreateBookingDTO {
     private Long id;
     private Long restaurantId;
     private ZonedDateTime timeStart;
-    private List<Long> preorder;
+    private List<CartItemDTO> preorder;
 }

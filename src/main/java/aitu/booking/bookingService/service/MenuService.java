@@ -1,6 +1,5 @@
 package aitu.booking.bookingService.service;
 
-import aitu.booking.bookingService.dto.AddItemToMenuDTO;
 import aitu.booking.bookingService.dto.create.CreateMenuDTO;
 import aitu.booking.bookingService.dto.create.CreateMenuItemDTO;
 import aitu.booking.bookingService.model.Menu;
