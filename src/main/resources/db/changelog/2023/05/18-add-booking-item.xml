@@ -4,11 +4,11 @@
                    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
                    http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.1.xsd">
     <changeSet id="add_booking_item" author="timur_umurzakov">
-        <addColumn tableName="booking_items">
+        <createTable tableName="booking_items">
             <column name="id" type="BIGINT"/>
             <column name="menu_item_id" type="BIGINT"/>
             <column name="quantity" type="BIGINT"/>
-        </addColumn>
+        </createTable>
         <addForeignKeyConstraint baseTableName="booking_items" baseColumnNames="menu_item_id"
                                  constraintName="menu_item_fk"
                                  referencedTableName="menu_items"

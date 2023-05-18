@@ -19,4 +19,9 @@ public class BookingItem extends BaseModel{
     public BookingItem() {
 
     }
+
+    public BookingItem(MenuItem menuItem, int quantity) {
+        this.menuItem = menuItem;
+        this.quantity = quantity;
+    }
 }

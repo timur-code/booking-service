@@ -17,6 +17,7 @@ import org.springframework.util.CollectionUtils;
 import javax.management.InstanceNotFoundException;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -37,11 +38,7 @@ public class BookingService {
         booking.setDtCreate(ZonedDateTime.now(ZoneId.of("Asia/Almaty")));
         booking.setTimeStart(bookingDTO.getTimeStart());
         if (!CollectionUtils.isEmpty(bookingDTO.getPreorder())) {
-            List<BookingItem> menuItems = menuItemService.getMenuItemList(
-                    bookingDTO.getPreorder().stream()
-                            .map(CartItemDTO::getItemId)
-                            .collect(Collectors.toList())
-            ).stream().map(item -> BookingItem.builder().menuItem(item).build()).collect(Collectors.toList());
+            List<BookingItem> menuItems = menuItemService.getBookingItems(bookingDTO.getPreorder());
             booking.setMenuItemList(menuItems);
         }
         return bookingRepository.save(booking);
