@@ -26,47 +26,47 @@ public class BookingService {
     private MenuItemService menuItemService;
     private RestaurantService restaurantService;
 
-    public Booking createBooking() {
+//    public Booking createBooking() {
+//
+//    }
 
-    }
+//    @Transactional
+//    public Booking addTempBooking(CreateBookingDTO bookingDTO, Authentication authentication) throws InstanceNotFoundException, IllegalAccessException {
+//        Restaurant restaurant = restaurantService.getRestaurantById(bookingDTO.getRestaurantId());
+//        UUID userUuid = KeycloakUtils.getUserUuidFromAuth(authentication);
+//        if (bookingDTO.getId() == null) {
+//            Optional<Booking> existingTempBooking = bookingRepository.findByUserUuidAndIsTempAndRestaurant(userUuid, true, restaurant);
+//            existingTempBooking.ifPresent(booking -> bookingRepository.delete(booking));
+//            return createTempBooking(bookingDTO, restaurant, userUuid);
+//        } else {
+//            return updateTempBooking(bookingDTO, userUuid);
+//        }
+//    }
 
-    @Transactional
-    public Booking addTempBooking(CreateBookingDTO bookingDTO, Authentication authentication) throws InstanceNotFoundException, IllegalAccessException {
-        Restaurant restaurant = restaurantService.getRestaurantById(bookingDTO.getRestaurantId());
-        UUID userUuid = KeycloakUtils.getUserUuidFromAuth(authentication);
-        if (bookingDTO.getId() == null) {
-            Optional<Booking> existingTempBooking = bookingRepository.findByUserUuidAndIsTempAndRestaurant(userUuid, true, restaurant);
-            existingTempBooking.ifPresent(booking -> bookingRepository.delete(booking));
-            return createTempBooking(bookingDTO, restaurant, userUuid);
-        } else {
-            return updateTempBooking(bookingDTO, userUuid);
-        }
-    }
-
-    private Booking createTempBooking(CreateBookingDTO bookingDTO, Restaurant restaurant, UUID userId) {
-        Booking booking = new Booking();
-        booking.setUserUuid(userId);
-        booking.setTimeStart(bookingDTO.getTimeStart());
-        booking.setDtCreate(ZonedDateTime.now(ZoneId.of("Asia/Almaty")));
-        booking.setRestaurant(restaurant);
-        booking.setIsActive(false);
-        booking.setIsTemp(true);
-        List<MenuItem> menuItems = menuItemService.getMenuItemList(bookingDTO.getPreorder());
-        booking.setMenuItemList(menuItems);
-        return bookingRepository.save(booking);
-    }
-
-    private Booking updateTempBooking(CreateBookingDTO bookingDTO, UUID userId)
-            throws InstanceNotFoundException, IllegalAccessException {
-        Booking booking = getBookingById(bookingDTO.getId());
-        if (!booking.getUserUuid().equals(userId)) {
-            throw new IllegalAccessException();
-        }
-        booking.setTimeStart(bookingDTO.getTimeStart());
-        List<MenuItem> menuItems = menuItemService.getMenuItemList(bookingDTO.getPreorder());
-        booking.setMenuItemList(menuItems);
-        return bookingRepository.save(booking);
-    }
+//    private Booking createTempBooking(CreateBookingDTO bookingDTO, Restaurant restaurant, UUID userId) {
+//        Booking booking = new Booking();
+//        booking.setUserUuid(userId);
+//        booking.setTimeStart(bookingDTO.getTimeStart());
+//        booking.setDtCreate(ZonedDateTime.now(ZoneId.of("Asia/Almaty")));
+//        booking.setRestaurant(restaurant);
+//        booking.setIsActive(false);
+//        booking.setIsTemp(true);
+//        List<MenuItem> menuItems = menuItemService.getMenuItemList(bookingDTO.getPreorder());
+//        booking.setMenuItemList(menuItems);
+//        return bookingRepository.save(booking);
+//    }
+//
+//    private Booking updateTempBooking(CreateBookingDTO bookingDTO, UUID userId)
+//            throws InstanceNotFoundException, IllegalAccessException {
+//        Booking booking = getBookingById(bookingDTO.getId());
+//        if (!booking.getUserUuid().equals(userId)) {
+//            throw new IllegalAccessException();
+//        }
+//        booking.setTimeStart(bookingDTO.getTimeStart());
+//        List<MenuItem> menuItems = menuItemService.getMenuItemList(bookingDTO.getPreorder());
+//        booking.setMenuItemList(menuItems);
+//        return bookingRepository.save(booking);
+//    }
 
     @Transactional
     public void confirmBooking(Long id, Authentication authentication) throws InstanceNotFoundException,
