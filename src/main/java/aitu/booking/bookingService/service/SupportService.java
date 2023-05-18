@@ -20,7 +20,7 @@ public class SupportService {
     private SupportRepository supportRepository;
 
     public Page<SupportRequest> getPageOfRequests() {
-        return supportRepository.findAll(PageRequest.of(0, 100, Sort.by(Sort.Direction.DESC, "dt_create")));
+        return supportRepository.findAll(PageRequest.of(0, 100, Sort.by("id").descending()));
     }
 
     public void createRequest(SupportRequestDTO dto, Authentication authentication) {
