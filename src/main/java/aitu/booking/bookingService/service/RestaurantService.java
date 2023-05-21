@@ -1,25 +1,21 @@
 package aitu.booking.bookingService.service;
 
-import aitu.booking.bookingService.dto.create.CreateBookingDTO;
 import aitu.booking.bookingService.dto.create.CreateMenuDTO;
 import aitu.booking.bookingService.dto.create.CreateRestaurantDTO;
 import aitu.booking.bookingService.dto.restaurant.RestaurantSmallDTO;
-import aitu.booking.bookingService.model.Booking;
 import aitu.booking.bookingService.model.Menu;
-import aitu.booking.bookingService.model.MenuItem;
 import aitu.booking.bookingService.model.Restaurant;
 import aitu.booking.bookingService.repository.RestaurantRepository;
-import aitu.booking.bookingService.util.KeycloakUtils;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.management.InstanceNotFoundException;
 
+@Slf4j
 @Service
 public class RestaurantService extends BaseService {
     private RestaurantRepository restaurantRepository;
@@ -49,7 +45,19 @@ public class RestaurantService extends BaseService {
         Restaurant restaurant = new Restaurant();
         restaurant.setName(restaurantDTO.getName());
         restaurant.setDescription(restaurantDTO.getDescription());
-        return restaurantRepository.save(restaurant);
+        Restaurant res = restaurantRepository.save(restaurant);
+
+        try {
+            addMenu(restaurant.getId(),
+                    CreateMenuDTO.builder()
+                            .description(restaurantDTO.getDescription())
+                            .name(restaurantDTO.getName())
+                            .language("ru")
+                            .build());
+        } catch (InstanceNotFoundException e) {
+            log.error("Error in transaction. Error adding menu to a new restaurant");
+        }
+        return res;
     }
 
     @Transactional

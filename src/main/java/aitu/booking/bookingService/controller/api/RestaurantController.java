@@ -61,16 +61,6 @@ public class RestaurantController extends BaseController {
         return new ResponseSuccessWithData<>(restaurant);
     }
 
-    @PostMapping("/{id}/menu")
-    public ResponseSuccessWithData<Restaurant> addMenu(@PathVariable Long id, @RequestBody CreateMenuDTO menuDTO) {
-        try {
-            Restaurant restaurant = restaurantService.addMenu(id, menuDTO);
-            return new ResponseSuccessWithData<>(restaurant);
-        } catch (InstanceNotFoundException e) {
-            throw new ApiException("404");
-        }
-    }
-
     @Autowired
     public void setRestaurantService(RestaurantService restaurantService) {
         this.restaurantService = restaurantService;

@@ -42,6 +42,9 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .sessionManagement()
                 .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 .and()
+                .authorizeRequests()
+                .anyRequest().permitAll()
+                .and()
                 .oauth2ResourceServer()
                 .jwt()
                 .jwtAuthenticationConverter(jwtAuthenticationConverter);
@@ -56,8 +59,6 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
             if (realmAccess == null) {
                 return new ArrayList<>();
             }
-            log.info("realmAccess: {}", realmAccess.get("roles"));
-
 
             List<GrantedAuthority> roles = ((List<String>) realmAccess.get("roles")).stream()
                     .map(roleName -> "ROLE_" + roleName)
@@ -67,5 +68,4 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
             return roles;
         }
     }
-
 }
