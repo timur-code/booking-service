@@ -40,6 +40,7 @@ public class RestaurantService extends BaseService {
                 .orElseThrow(InstanceNotFoundException::new);
     }
 
+    //TODO: use RestaurantAdminService to add admin, create table
     @Transactional
     public Restaurant addRestaurant(CreateRestaurantDTO restaurantDTO) {
         Restaurant restaurant = new Restaurant();
