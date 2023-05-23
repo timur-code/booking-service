@@ -17,4 +17,14 @@ public class RestaurantAdminDTO {
     private Long restaurantId;
     private String phone;
     private String password;
+
+    public RestaurantAdminDTO() {
+    }
+
+    public RestaurantAdminDTO(UUID id, Long restaurantId, String phone, String password) {
+        this.id = id;
+        this.restaurantId = restaurantId;
+        this.phone = phone;
+        this.password = password;
+    }
 }

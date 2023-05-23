@@ -3,9 +3,12 @@ package aitu.booking.bookingService.service;
 import aitu.booking.bookingService.dto.create.CreateMenuDTO;
 import aitu.booking.bookingService.dto.create.CreateRestaurantDTO;
 import aitu.booking.bookingService.dto.restaurant.RestaurantSmallDTO;
+import aitu.booking.bookingService.exception.ApiException;
 import aitu.booking.bookingService.model.Menu;
 import aitu.booking.bookingService.model.Restaurant;
+import aitu.booking.bookingService.model.RestaurantAdmin;
 import aitu.booking.bookingService.repository.RestaurantRepository;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -20,6 +23,7 @@ import javax.management.InstanceNotFoundException;
 public class RestaurantService extends BaseService {
     private RestaurantRepository restaurantRepository;
     private MenuService menuService;
+    private RestaurantAdminService restaurantAdminService;
 
     public Page<RestaurantSmallDTO> list(int page, int size) {
         return restaurantRepository.findAll(PageRequest.of(--page, size))
@@ -40,7 +44,6 @@ public class RestaurantService extends BaseService {
                 .orElseThrow(InstanceNotFoundException::new);
     }
 
-    //TODO: use RestaurantAdminService to add admin, create table
     @Transactional
     public Restaurant addRestaurant(CreateRestaurantDTO restaurantDTO) {
         Restaurant restaurant = new Restaurant();
@@ -58,7 +61,17 @@ public class RestaurantService extends BaseService {
         } catch (InstanceNotFoundException e) {
             log.error("Error in transaction. Error adding menu to a new restaurant");
         }
-        return res;
+
+        RestaurantAdmin admin;
+        try {
+            admin = restaurantAdminService.createAdmin(res.getId(), restaurantDTO.getAdminPhone(), restaurantDTO.getPassword());
+            res.setAdmin(admin);
+        } catch (JsonProcessingException ex) {
+            log.error("Error in transaction. Error adding admin to a new restaurant:\n",  ex);
+            throw new ApiException(500, "admin.create.json.error");
+        }
+
+        return restaurantRepository.save(res);
     }
 
     @Transactional
@@ -87,4 +100,8 @@ public class RestaurantService extends BaseService {
         this.menuService = menuService;
     }
 
+    @Autowired
+    public void setRestaurantAdminService(RestaurantAdminService restaurantAdminService) {
+        this.restaurantAdminService = restaurantAdminService;
+    }
 }

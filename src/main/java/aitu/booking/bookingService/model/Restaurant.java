@@ -6,10 +6,7 @@ import lombok.Setter;
 import lombok.ToString;
 import org.hibernate.annotations.Fetch;
 
-import javax.persistence.Entity;
-import javax.persistence.FetchType;
-import javax.persistence.OneToMany;
-import javax.persistence.Table;
+import javax.persistence.*;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -24,6 +21,8 @@ public class Restaurant extends BaseModel {
     private String description;
     @OneToMany
     private List<Menu> menuList;
+    @OneToOne
+    private RestaurantAdmin admin;
 
 
     public void addMenu(Menu menu) {

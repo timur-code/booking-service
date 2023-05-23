@@ -5,7 +5,6 @@ import aitu.booking.bookingService.model.RestaurantAdmin;
 import aitu.booking.bookingService.repository.RestaurantAdminRepository;
 import aitu.booking.bookingService.util.UserApi;
 import com.fasterxml.jackson.core.JsonProcessingException;
-import lombok.SneakyThrows;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -14,8 +13,8 @@ public class RestaurantAdminService {
     private RestaurantAdminRepository repository;
     private UserApi userApi;
 
-    @SneakyThrows
-    public RestaurantAdmin createAdmin(Long restaurantId, String phone, String password) {
+    public RestaurantAdmin createAdmin(Long restaurantId, String phone, String password)
+            throws JsonProcessingException {
         RestaurantAdminDTO dto = RestaurantAdminDTO.builder()
                 .restaurantId(restaurantId)
                 .phone(phone)
@@ -25,7 +24,8 @@ public class RestaurantAdminService {
 
         RestaurantAdminDTO res = userApi.createAdmin(dto);
         RestaurantAdmin admin = new RestaurantAdmin();
-        admin.setPhone(phone);
+        admin.setUserId(res.getId());
+        admin.setPhone(res.getPhone());
         return repository.save(admin);
     }
 

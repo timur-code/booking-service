@@ -5,8 +5,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import javax.persistence.Entity;
-import javax.persistence.Table;
+import javax.persistence.*;
+import java.util.UUID;
 
 @Getter
 @Setter
@@ -14,6 +14,11 @@ import javax.persistence.Table;
 @AllArgsConstructor
 @Entity
 @Table(name = "restaurant_admins")
-public class RestaurantAdmin extends BaseModel {
+public class RestaurantAdmin {
+    @Id
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "restaurantAdminsSeq")
+    @SequenceGenerator(name = "restaurantAdminsSeq", sequenceName = "restaurant_admins_seq", allocationSize = 1, initialValue = 1)
+    private Long id;
+    private UUID userId;
     private String phone;
 }

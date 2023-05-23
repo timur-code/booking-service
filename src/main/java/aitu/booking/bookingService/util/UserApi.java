@@ -4,13 +4,15 @@ import aitu.booking.bookingService.dto.RestaurantAdminDTO;
 import aitu.booking.bookingService.exception.ApiException;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.extern.slf4j.Slf4j;
 import okhttp3.*;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Service;
+import org.springframework.stereotype.Component;
 
 import java.io.IOException;
 
-@Service
+@Slf4j
+@Component
 public class UserApi {
     @Value("${service.user.token}")
     private String serviceToken;
@@ -55,11 +57,13 @@ public class UserApi {
         try (Response response = client.newCall(request).execute()) {
             if (!response.isSuccessful()) {
                 int code = response.code();
+                log.error("Error creating restaurant admin: {}\n{}", code, response);
                 throw new ApiException(code, "admin.create.error");
             }
             String json = response.body().string();
             return mapper.readValue(json, RestaurantAdminDTO.class);
         } catch (IOException e) {
+            log.error("Error creating restaurant admin:\n", e);
             throw new ApiException(500, "admin.create.error");
         }
     }
