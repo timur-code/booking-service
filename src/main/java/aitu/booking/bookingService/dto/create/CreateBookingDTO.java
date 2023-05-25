@@ -13,5 +13,7 @@ public class CreateBookingDTO {
     private Long id;
     private Long restaurantId;
     private ZonedDateTime timeStart;
+    private ZonedDateTime timeEnd;
+    private Integer guests;
     private List<CartItemDTO> preorder;
 }

@@ -19,6 +19,7 @@ import java.util.List;
 public class Restaurant extends BaseModel {
     private String name;
     private String description;
+    private Integer seats;
     @OneToMany
     private List<Menu> menuList;
     @OneToOne
