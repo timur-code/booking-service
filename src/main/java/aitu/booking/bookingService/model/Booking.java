@@ -11,10 +11,23 @@ import java.util.UUID;
 
 @Entity
 @Table(name = "bookings")
-public class Booking extends BaseModel {
+public class Booking {
+    @Id
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "bookingsSeq")
+    @SequenceGenerator(name = "bookingsSeq", sequenceName = "bookings_seq", allocationSize = 1, initialValue = 1)
+    private Long id;
     @ManyToOne
     private Restaurant restaurant;
     @OneToMany
+    @JoinTable(name = "booking_booking_item",
+            joinColumns = @JoinColumn(
+                    name = "booking_id",
+                    referencedColumnName = "id"
+            ),
+            inverseJoinColumns = @JoinColumn(
+                    name = "booking_item_id",
+                    referencedColumnName = "id"
+            ))
     private List<BookingItem> bookingItems;
     @Column(nullable = false)
     private UUID userId;
@@ -49,7 +62,10 @@ public class Booking extends BaseModel {
         this.stripeSessionId = stripeSessionId;
     }
 
-    public Booking(Restaurant restaurant, List<BookingItem> bookingItems, UUID userId, ZonedDateTime startTime, ZonedDateTime endTime, Integer guests) {
+    public Booking(Restaurant restaurant, List<BookingItem> bookingItems,
+                   UUID userId, ZonedDateTime startTime,
+                   ZonedDateTime endTime, Integer guests,
+                   String stripeSessionId) {
         this.restaurant = restaurant;
         this.bookingItems = bookingItems;
         this.userId = userId;
@@ -57,6 +73,26 @@ public class Booking extends BaseModel {
         this.endTime = endTime;
         this.guests = guests;
         this.createdAt = ZonedDateTime.now(ZoneId.of("Asia/Almaty"));
+        this.stripeSessionId = stripeSessionId;
+    }
+
+    public Booking(Restaurant restaurant, UUID userId,
+                   ZonedDateTime startTime, ZonedDateTime endTime,
+                   Integer guests) {
+        this.restaurant = restaurant;
+        this.userId = userId;
+        this.startTime = startTime;
+        this.endTime = endTime;
+        this.guests = guests;
+        this.createdAt = ZonedDateTime.now(ZoneId.of("Asia/Almaty"));
+    }
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
     }
 
     public void addBookingItem(BookingItem bookingItem) {

@@ -1,16 +1,23 @@
 package aitu.booking.bookingService.service;
 
+import aitu.booking.bookingService.dto.CartItemDTO;
 import aitu.booking.bookingService.dto.create.CreateBookingDTO;
+import aitu.booking.bookingService.exception.ApiException;
 import aitu.booking.bookingService.model.Booking;
 import aitu.booking.bookingService.model.BookingItem;
 import aitu.booking.bookingService.model.MenuItem;
 import aitu.booking.bookingService.model.Restaurant;
+import aitu.booking.bookingService.repository.BookingItemRepository;
 import aitu.booking.bookingService.repository.BookingRepository;
 import aitu.booking.bookingService.util.KeycloakUtils;
+import com.stripe.exception.StripeException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 
 import javax.management.InstanceNotFoundException;
 import java.time.ZonedDateTime;
@@ -23,7 +30,9 @@ import java.util.stream.Collectors;
 public class BookingService {
     private RestaurantService restaurantService;
     private MenuItemService menuItemService;
+    private StripeService stripeService;
     private BookingRepository bookingRepository;
+    private BookingItemRepository bookingItemRepository;
 
     public Booking createBooking(CreateBookingDTO createBookingDTO, Authentication authentication) throws InstanceNotFoundException {
         UUID userId = KeycloakUtils.getUserUuidFromAuth(authentication);
@@ -39,10 +48,65 @@ public class BookingService {
                 .sum();
 
         if (totalGuests + createBookingDTO.getGuests() > restaurant.getSeats()) {
-            throw new RuntimeException("Not enough seats available");
+            throw new ApiException(400, "Not enough seats available");
         }
 
-        List<BookingItem> bookingItems = createBookingDTO.getPreorder().stream()
+        String sessionId = null;
+        Booking booking = null;
+        if (!CollectionUtils.isEmpty(createBookingDTO.getPreorder())) {
+            List<BookingItem> bookingItems = saveBookingItems(createBookingDTO.getPreorder());
+            // This line communicates with Stripe API to create a Checkout Session
+            try {
+                sessionId = stripeService.createCheckoutSession(createBookingDTO.getPreorder());
+                log.info("Created Stripe Checkout Session: {}", sessionId);
+            } catch (StripeException ex) {
+                log.error("Stripe error during booking of user {}: {}", userId, ex);
+                throw new ApiException(500, "stripe.error");
+            }
+            booking = new Booking(restaurant, bookingItems, userId, startTime, endTime,
+                    createBookingDTO.getGuests(), sessionId);
+        } else {
+            booking = new Booking(restaurant, userId, startTime, endTime,
+                    createBookingDTO.getGuests());
+        }
+
+
+        return bookingRepository.save(booking);
+    }
+
+    public Booking confirmPayment(String sessionId) {
+        Booking booking = bookingRepository.findByStripeSessionId(sessionId)
+                .orElseThrow(() -> new RuntimeException("Booking not found"));
+
+        booking.setPayed(true);
+        return bookingRepository.save(booking);
+    }
+
+    public Page<Booking> getUserBookings(UUID userId, int pageNum, int pageSize) {
+        return bookingRepository.findByUserIdOrderByCreatedAtDesc(userId, PageRequest.of(--pageNum, pageSize));
+    }
+
+    public Page<Booking> getRestaurantBookings(Long restaurantId, int pageNum, int pageSize) {
+        return bookingRepository.findByRestaurantIdOrderByCreatedAtDesc(restaurantId, PageRequest.of(--pageNum, pageSize));
+    }
+
+    public Page<Booking> getAllBookings(int pageNum, int pageSize) {
+        return bookingRepository.findAllByOrderByCreatedAtDesc(PageRequest.of(--pageNum, pageSize));
+    }
+
+    public Booking getBookingById(Long id) {
+        return bookingRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Booking not found"));
+    }
+
+    public void cancelBooking(Long id) {
+        Booking booking = getBookingById(id);
+        booking.cancelBooking();
+        bookingRepository.save(booking);
+    }
+
+    private List<BookingItem> saveBookingItems(List<CartItemDTO> preorder) {
+        List<BookingItem> bookingItems = preorder.stream()
                 .map(cartItemDTO -> {
                     try {
                         MenuItem item = menuItemService.getMenuItemById(cartItemDTO.getItemId());
@@ -52,12 +116,9 @@ public class BookingService {
                     }
                     return null;
                 })
-                .collect(Collectors.toList());
+                .toList();
 
-        Booking booking = new Booking(restaurant, bookingItems, userId,
-                startTime, endTime, createBookingDTO.getGuests());
-
-        return bookingRepository.save(booking);
+        return bookingItemRepository.saveAll(bookingItems);
     }
 
     @Autowired
@@ -71,7 +132,17 @@ public class BookingService {
     }
 
     @Autowired
+    public void setStripeService(StripeService stripeService) {
+        this.stripeService = stripeService;
+    }
+
+    @Autowired
     public void setBookingRepository(BookingRepository bookingRepository) {
         this.bookingRepository = bookingRepository;
+    }
+
+    @Autowired
+    public void setBookingItemRepository(BookingItemRepository bookingItemRepository) {
+        this.bookingItemRepository = bookingItemRepository;
     }
 }

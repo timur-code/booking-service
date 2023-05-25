@@ -1,0 +1,94 @@
+<?xml version="1.1" encoding="UTF-8" standalone="no"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                   http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.1.xsd">
+    <changeSet id="add_column_seats_restaurant" author="timur_umurzakov">
+        <addColumn tableName="restaurants">
+            <column name="seats" type="integer" defaultValue="1"/>
+        </addColumn>
+    </changeSet>
+
+    <changeSet id="drop_booking" author="timur_umurzakov">
+        <dropTable tableName="bookings_menu_item_list"/>
+        <dropTable tableName="booking_items"/>
+        <dropTable tableName="bookings"/>
+    </changeSet>
+
+    <changeSet id="recreate_booking" author="timur_umurzakov">
+        <createTable tableName="bookings">
+            <column name="id" type="bigint">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="restaurant_id" type="bigint">
+                <constraints nullable="true"/>
+            </column>
+            <column name="user_id" type="uuid">
+                <constraints nullable="false"/>
+            </column>
+            <column name="start_time" type="timestamp">
+                <constraints nullable="false"/>
+            </column>
+            <column name="end_time" type="timestamp">
+                <constraints nullable="false"/>
+            </column>
+            <column name="guests" type="integer">
+                <constraints nullable="false"/>
+            </column>
+            <column name="created_at" type="timestamp" defaultValueComputed="CURRENT_TIMESTAMP"/>
+            <column name="is_canceled" type="boolean" defaultValueBoolean="false"/>
+            <column name="is_payed" type="boolean">
+                <constraints nullable="true"/>
+            </column>
+            <column name="stripe_session_id" type="varchar(255)">
+                <constraints nullable="true"/>
+            </column>
+        </createTable>
+
+        <addForeignKeyConstraint constraintName="fk_bookings_restaurant"
+                                 baseTableName="bookings" baseColumnNames="restaurant_id"
+                                 referencedTableName="restaurants" referencedColumnNames="id"/>
+
+        <createSequence sequenceName="bookings_seq" dataType="bigint"
+                        incrementBy="1" minValue="1" startValue="1"/>
+    </changeSet>
+
+    <changeSet id="recreate_booking_items" author="timur_umurzakov">
+        <createTable tableName="booking_items">
+            <column name="id" type="bigint">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="menu_item_id" type="bigint">
+                <constraints nullable="false"/>
+            </column>
+            <column name="quantity" type="integer"/>
+        </createTable>
+
+        <addForeignKeyConstraint constraintName="fk_booking_items_menu_items"
+                                 baseTableName="booking_items" baseColumnNames="menu_item_id"
+                                 referencedTableName="menu_items" referencedColumnNames="id"/>
+
+        <createSequence sequenceName="booking_items_seq" dataType="bigint"
+                        incrementBy="1" minValue="1" startValue="1"/>
+    </changeSet>
+
+    <changeSet id="connect_booking_to_booking_items" author="timur_umurzakov">
+        <createTable tableName="booking_booking_item">
+            <column name="booking_id" type="bigint">
+                <constraints nullable="false"/>
+            </column>
+            <column name="booking_item_id" type="bigint">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+
+        <addForeignKeyConstraint constraintName="fk_booking_booking_item_booking"
+                                 baseTableName="booking_booking_item" baseColumnNames="booking_id"
+                                 referencedTableName="bookings" referencedColumnNames="id"/>
+
+        <addForeignKeyConstraint constraintName="fk_booking_booking_item_item"
+                                 baseTableName="booking_booking_item" baseColumnNames="booking_item_id"
+                                 referencedTableName="booking_items" referencedColumnNames="id"/>
+    </changeSet>
+
+</databaseChangeLog>

@@ -28,6 +28,7 @@ public class BookingController {
                                                                            Authentication authentication) {
         try {
             Booking booking = bookingService.createBooking(bookingDTO, authentication);
+            booking.setRestaurant(null);
             return ResponseEntity.ok(new ResponseSuccessWithData<>(booking));
         } catch (InstanceNotFoundException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
