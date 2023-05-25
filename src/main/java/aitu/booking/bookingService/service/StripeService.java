@@ -29,15 +29,15 @@ public class StripeService {
         Stripe.apiKey = "sk_test_51N43SoLGdo0JQxtBpSJwNf1ax4tsRt8sUNx3P1g7w3unIFfPdQxWB2sXfI9o9nDI3HahMdxcrXHPsZpxNRlRwque00XqO9XNYv";
     }
 
-    public String createCheckoutSession(List<CartItemDTO> cartItems) throws StripeException {
+    public String createCheckoutSession(Long bookingId, List<CartItemDTO> cartItems) throws StripeException {
         List<Map<String, Object>> cartList = getMapFromCart(cartItems);
         List<SessionCreateParams.LineItem> lineItems = new ArrayList<>();
         for (Map<String, Object> item : cartList) {
             lineItems.add(SessionCreateParams.LineItem.builder()
                     .setQuantity((Long) item.get("quantity"))
                     .setPriceData(SessionCreateParams.LineItem.PriceData.builder()
-                            .setCurrency("usd")
-                            .setUnitAmount((Long) item.get("price"))
+                            .setCurrency("kzt")
+                            .setUnitAmount((Long) item.get("price") * 100)
                             .setProductData(SessionCreateParams.LineItem.PriceData.ProductData.builder()
                                     .setName((String) item.get("name"))
                                     .build())
@@ -50,8 +50,8 @@ public class StripeService {
                         .addPaymentMethodType(SessionCreateParams.PaymentMethodType.CARD)
                         .addAllLineItem(lineItems)
                         .setMode(SessionCreateParams.Mode.PAYMENT)
-                        .setSuccessUrl("http://localhost:3000/profile/cart/success")
-                        .setCancelUrl("http://localhost:3000/profile/cart/cancel")
+                        .setSuccessUrl("http://localhost:3000/profile/cart/success?bookingId=" + bookingId)
+                        .setCancelUrl("http://localhost:3000/profile/cart/cancel?bookingId=" + bookingId)
                         .build();
 
         Session session = Session.create(params);

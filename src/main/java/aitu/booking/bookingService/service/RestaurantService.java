@@ -8,15 +8,18 @@ import aitu.booking.bookingService.model.Menu;
 import aitu.booking.bookingService.model.Restaurant;
 import aitu.booking.bookingService.model.RestaurantAdmin;
 import aitu.booking.bookingService.repository.RestaurantRepository;
+import aitu.booking.bookingService.util.KeycloakUtils;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.management.InstanceNotFoundException;
+import java.util.UUID;
 
 @Slf4j
 @Service
@@ -67,7 +70,7 @@ public class RestaurantService extends BaseService {
             admin = restaurantAdminService.createAdmin(res.getId(), restaurantDTO.getAdminPhone(), restaurantDTO.getPassword());
             res.setAdmin(admin);
         } catch (JsonProcessingException ex) {
-            log.error("Error in transaction. Error adding admin to a new restaurant:\n",  ex);
+            log.error("Error in transaction. Error adding admin to a new restaurant:\n", ex);
             throw new ApiException(500, "admin.create.json.error");
         }
 
@@ -80,6 +83,19 @@ public class RestaurantService extends BaseService {
         Restaurant restaurant = getRestaurantById(restaurantId);
         restaurant.addMenu(menu);
         return restaurantRepository.save(restaurant);
+    }
+
+    public void verifyAccess(Authentication authentication, Long restaurantId) {
+        Restaurant restaurant;
+        try {
+            restaurant = getRestaurantById(restaurantId);
+        } catch (InstanceNotFoundException ex) {
+            throw new ApiException(404, "restaurant.not-found");
+        }
+        UUID userId = KeycloakUtils.getUserUuidFromAuth(authentication);
+        if (!restaurant.getAdmin().getUserId().equals(userId)) {
+            throw new ApiException(403, "user.no-access");
+        }
     }
 
     private RestaurantSmallDTO toSmallDTO(Restaurant restaurant) {

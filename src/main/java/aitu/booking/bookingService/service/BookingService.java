@@ -23,7 +23,6 @@ import javax.management.InstanceNotFoundException;
 import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -56,15 +55,19 @@ public class BookingService {
         if (!CollectionUtils.isEmpty(createBookingDTO.getPreorder())) {
             List<BookingItem> bookingItems = saveBookingItems(createBookingDTO.getPreorder());
             // This line communicates with Stripe API to create a Checkout Session
+            booking = new Booking(restaurant, userId, startTime, endTime,
+                    createBookingDTO.getGuests());
+            booking = bookingRepository.save(booking);
             try {
-                sessionId = stripeService.createCheckoutSession(createBookingDTO.getPreorder());
+                sessionId = stripeService.createCheckoutSession(booking.getId(), createBookingDTO.getPreorder());
                 log.info("Created Stripe Checkout Session: {}", sessionId);
             } catch (StripeException ex) {
                 log.error("Stripe error during booking of user {}: {}", userId, ex);
                 throw new ApiException(500, "stripe.error");
             }
-            booking = new Booking(restaurant, bookingItems, userId, startTime, endTime,
-                    createBookingDTO.getGuests(), sessionId);
+            booking.setBookingItems(bookingItems);
+            booking.setStripeSessionId(sessionId);
+            booking.setPayed(false);
         } else {
             booking = new Booking(restaurant, userId, startTime, endTime,
                     createBookingDTO.getGuests());
@@ -74,19 +77,25 @@ public class BookingService {
         return bookingRepository.save(booking);
     }
 
-    public Booking confirmPayment(String sessionId) {
-        Booking booking = bookingRepository.findByStripeSessionId(sessionId)
-                .orElseThrow(() -> new RuntimeException("Booking not found"));
+    public Booking confirmPayment(Long bookingId, Authentication authentication) {
+        Booking booking = bookingRepository.findById(bookingId)
+                .orElseThrow(() -> new ApiException(404, "booking.not-found"));
 
+        UUID userId = KeycloakUtils.getUserUuidFromAuth(authentication);
+        if (booking.getUserId().equals(userId)) {
+            throw new ApiException(401, "user.no-access");
+        }
         booking.setPayed(true);
         return bookingRepository.save(booking);
     }
 
-    public Page<Booking> getUserBookings(UUID userId, int pageNum, int pageSize) {
+    public Page<Booking> getUserBookings(Authentication authentication, int pageNum, int pageSize) {
+        UUID userId = KeycloakUtils.getUserUuidFromAuth(authentication);
         return bookingRepository.findByUserIdOrderByCreatedAtDesc(userId, PageRequest.of(--pageNum, pageSize));
     }
 
-    public Page<Booking> getRestaurantBookings(Long restaurantId, int pageNum, int pageSize) {
+    public Page<Booking> getRestaurantBookings(Long restaurantId, int pageNum, int pageSize, Authentication authentication) {
+        restaurantService.verifyAccess(authentication, restaurantId);
         return bookingRepository.findByRestaurantIdOrderByCreatedAtDesc(restaurantId, PageRequest.of(--pageNum, pageSize));
     }
 
@@ -99,8 +108,12 @@ public class BookingService {
                 .orElseThrow(() -> new RuntimeException("Booking not found"));
     }
 
-    public void cancelBooking(Long id) {
+    public void cancelBooking(Long id, Authentication authentication) {
         Booking booking = getBookingById(id);
+        UUID userId = KeycloakUtils.getUserUuidFromAuth(authentication);
+        if (!booking.getUserId().equals(userId)) {
+            throw new ApiException(403, "user.no-access");
+        }
         booking.cancelBooking();
         bookingRepository.save(booking);
     }
