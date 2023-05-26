@@ -9,6 +9,7 @@ import com.stripe.model.checkout.Session;
 import com.stripe.param.checkout.SessionCreateParams;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.PostConstruct;
@@ -22,11 +23,15 @@ import java.util.Map;
 @Service
 public class StripeService {
 
+    @Value("${stripe.api.key}")
+    private String apiKey;
+    @Value("${front.url}")
+    private String frontUrl;
     private MenuItemRepository repository;
 
     @PostConstruct
     public void init() {
-        Stripe.apiKey = "sk_test_51N43SoLGdo0JQxtBpSJwNf1ax4tsRt8sUNx3P1g7w3unIFfPdQxWB2sXfI9o9nDI3HahMdxcrXHPsZpxNRlRwque00XqO9XNYv";
+        Stripe.apiKey = apiKey;
     }
 
     public Session createCheckoutSession(Long bookingId, List<CartItemDTO> cartItems) throws StripeException {
@@ -50,8 +55,8 @@ public class StripeService {
                         .addPaymentMethodType(SessionCreateParams.PaymentMethodType.CARD)
                         .addAllLineItem(lineItems)
                         .setMode(SessionCreateParams.Mode.PAYMENT)
-                        .setSuccessUrl("http://localhost:3000/profile/cart/success?bookingId=" + bookingId)
-                        .setCancelUrl("http://localhost:3000/profile/cart/cancel?bookingId=" + bookingId)
+                        .setSuccessUrl(frontUrl + "/profile/cart/success?bookingId=" + bookingId)
+                        .setCancelUrl(frontUrl + "http://localhost:3000/profile/cart/cancel?bookingId=" + bookingId)
                         .build();
 
         Session session = Session.create(params);

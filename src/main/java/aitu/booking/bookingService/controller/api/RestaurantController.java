@@ -1,6 +1,7 @@
 package aitu.booking.bookingService.controller.api;
 
 import aitu.booking.bookingService.controller.BaseController;
+import aitu.booking.bookingService.dto.RequestIdsDTO;
 import aitu.booking.bookingService.dto.create.CreateMenuDTO;
 import aitu.booking.bookingService.dto.create.CreateRestaurantDTO;
 import aitu.booking.bookingService.dto.responses.ResponseSuccessWithData;
@@ -18,6 +19,7 @@ import org.springframework.security.access.annotation.Secured;
 import org.springframework.web.bind.annotation.*;
 
 import javax.management.InstanceNotFoundException;
+import java.util.List;
 
 @Slf4j
 @RestController
@@ -41,6 +43,11 @@ public class RestaurantController extends BaseController {
             log.error("Error: {}", ex.getMessage(), ex);
             return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
         }
+    }
+
+    @PostMapping("/list-by-id")
+    public ResponseEntity<ResponseSuccessWithData<List<RestaurantSmallDTO>>> getRestaurants(@RequestBody RequestIdsDTO dto) {
+        return ResponseEntity.ok(new ResponseSuccessWithData<>(restaurantService.getRestaurantsSmallByIds(dto.getIdList())));
     }
 
     @GetMapping("/{id}/menu")

@@ -19,6 +19,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.management.InstanceNotFoundException;
+import java.util.List;
 import java.util.UUID;
 
 @Slf4j
@@ -39,6 +40,10 @@ public class RestaurantService extends BaseService {
 
     public RestaurantSmallDTO getRestaurantSmallById(Long id) throws InstanceNotFoundException {
         return toSmallDTO(getRestaurantById(id));
+    }
+
+    public List<RestaurantSmallDTO> getRestaurantsSmallByIds(List<Long> id) {
+        return restaurantRepository.findAllById(id).stream().map(this::toSmallDTO).toList();
     }
 
     @Transactional(readOnly = true)
