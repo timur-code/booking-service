@@ -8,6 +8,8 @@ import lombok.Data;
 public class CreateRestaurantDTO {
     private String name;
     private String description;
+    private Integer seats;
+    private String image;
     private String adminPhone;
     private String password;
 }

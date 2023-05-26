@@ -52,6 +52,8 @@ public class RestaurantService extends BaseService {
         Restaurant restaurant = new Restaurant();
         restaurant.setName(restaurantDTO.getName());
         restaurant.setDescription(restaurantDTO.getDescription());
+        restaurant.setSeats(restaurant.getSeats());
+        restaurant.setImage(restaurant.getImage());
         Restaurant res = restaurantRepository.save(restaurant);
 
         try {

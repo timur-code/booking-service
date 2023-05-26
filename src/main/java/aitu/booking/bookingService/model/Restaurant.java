@@ -24,6 +24,7 @@ public class Restaurant extends BaseModel {
     private List<Menu> menuList;
     @OneToOne
     private RestaurantAdmin admin;
+    private String image;
 
 
     public void addMenu(Menu menu) {
