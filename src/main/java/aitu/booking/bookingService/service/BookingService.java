@@ -18,6 +18,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
+import com.stripe.model.checkout.Session;
 
 import javax.management.InstanceNotFoundException;
 import java.time.ZonedDateTime;
@@ -50,7 +51,7 @@ public class BookingService {
             throw new ApiException(400, "Not enough seats available");
         }
 
-        String sessionId = null;
+        Session session = null;
         Booking booking = null;
         if (!CollectionUtils.isEmpty(createBookingDTO.getPreorder())) {
             List<BookingItem> bookingItems = saveBookingItems(createBookingDTO.getPreorder());
@@ -59,14 +60,16 @@ public class BookingService {
                     createBookingDTO.getGuests());
             booking = bookingRepository.save(booking);
             try {
-                sessionId = stripeService.createCheckoutSession(booking.getId(), createBookingDTO.getPreorder());
-                log.info("Created Stripe Checkout Session: {}", sessionId);
+                session = stripeService.createCheckoutSession(booking.getId(), createBookingDTO.getPreorder());
+
+                log.info("Created Stripe Checkout Session: {}", session.getId());
             } catch (StripeException ex) {
                 log.error("Stripe error during booking of user {}: {}", userId, ex);
                 throw new ApiException(500, "stripe.error");
             }
             booking.setBookingItems(bookingItems);
-            booking.setStripeSessionId(sessionId);
+            booking.setStripeSessionId(session.getId());
+            booking.setStripeUrl(session.getUrl());
             booking.setPayed(false);
         } else {
             booking = new Booking(restaurant, userId, startTime, endTime,
@@ -82,7 +85,7 @@ public class BookingService {
                 .orElseThrow(() -> new ApiException(404, "booking.not-found"));
 
         UUID userId = KeycloakUtils.getUserUuidFromAuth(authentication);
-        if (booking.getUserId().equals(userId)) {
+        if (!booking.getUserId().equals(userId)) {
             throw new ApiException(401, "user.no-access");
         }
         booking.setPayed(true);

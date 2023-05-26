@@ -29,7 +29,7 @@ public class StripeService {
         Stripe.apiKey = "sk_test_51N43SoLGdo0JQxtBpSJwNf1ax4tsRt8sUNx3P1g7w3unIFfPdQxWB2sXfI9o9nDI3HahMdxcrXHPsZpxNRlRwque00XqO9XNYv";
     }
 
-    public String createCheckoutSession(Long bookingId, List<CartItemDTO> cartItems) throws StripeException {
+    public Session createCheckoutSession(Long bookingId, List<CartItemDTO> cartItems) throws StripeException {
         List<Map<String, Object>> cartList = getMapFromCart(cartItems);
         List<SessionCreateParams.LineItem> lineItems = new ArrayList<>();
         for (Map<String, Object> item : cartList) {
@@ -56,7 +56,7 @@ public class StripeService {
 
         Session session = Session.create(params);
         log.info("Session url: {}", session.getUrl());
-        return session.getId();
+        return session;
     }
 
     List<Map<String, Object>> getMapFromCart(List<CartItemDTO> cartItems) {

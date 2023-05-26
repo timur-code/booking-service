@@ -42,6 +42,7 @@ public class Booking {
     private Boolean isCanceled = false;
     private Boolean isPayed;
     private String stripeSessionId;
+    private String stripeUrl;
 
     public Booking() {
     }
@@ -49,7 +50,7 @@ public class Booking {
     public Booking(Restaurant restaurant, List<BookingItem> bookingItems, UUID userId,
                    ZonedDateTime startTime, ZonedDateTime endTime, Integer guests,
                    ZonedDateTime createdAt, Boolean isCanceled, Boolean isPayed,
-                   String stripeSessionId) {
+                   String stripeSessionId, String stripeUrl) {
         this.restaurant = restaurant;
         this.bookingItems = bookingItems;
         this.userId = userId;
@@ -60,12 +61,13 @@ public class Booking {
         this.isCanceled = isCanceled;
         this.isPayed = isPayed;
         this.stripeSessionId = stripeSessionId;
+        this.stripeUrl = stripeUrl;
     }
 
     public Booking(Restaurant restaurant, List<BookingItem> bookingItems,
                    UUID userId, ZonedDateTime startTime,
                    ZonedDateTime endTime, Integer guests,
-                   String stripeSessionId) {
+                   String stripeSessionId, String stripeUrl) {
         this.restaurant = restaurant;
         this.bookingItems = bookingItems;
         this.userId = userId;
@@ -74,6 +76,7 @@ public class Booking {
         this.guests = guests;
         this.createdAt = ZonedDateTime.now(ZoneId.of("Asia/Almaty"));
         this.stripeSessionId = stripeSessionId;
+        this.stripeUrl = stripeUrl;
     }
 
     public Booking(Restaurant restaurant, UUID userId,
@@ -184,5 +187,13 @@ public class Booking {
 
     public void setStripeSessionId(String stripeSessionId) {
         this.stripeSessionId = stripeSessionId;
+    }
+
+    public String getStripeUrl() {
+        return stripeUrl;
+    }
+
+    public void setStripeUrl(String stripeUrl) {
+        this.stripeUrl = stripeUrl;
     }
 }
