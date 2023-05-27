@@ -2,6 +2,7 @@ package aitu.booking.bookingService.controller.api;
 
 import aitu.booking.bookingService.dto.SupportRequestDTO;
 import aitu.booking.bookingService.dto.create.CreateBookingDTO;
+import aitu.booking.bookingService.dto.responses.ResponseSuccess;
 import aitu.booking.bookingService.dto.responses.ResponseSuccessWithData;
 import aitu.booking.bookingService.model.Booking;
 import aitu.booking.bookingService.model.SupportRequest;
@@ -30,12 +31,23 @@ public class SupportController {
         return ResponseEntity.ok(supportService.getPageOfRequests());
     }
 
+    @Secured("ROLE_admin")
+    @PostMapping("/{id}/resolve")
+    public ResponseEntity<ResponseSuccess> resolve(@PathVariable Long id) {
+        try {
+            supportService.resolveRequest(id);
+            return ResponseEntity.ok(new ResponseSuccess());
+        } catch (InstanceNotFoundException ex) {
+            return ResponseEntity.notFound().build();
+        }
+    }
+
     @Secured("ROLE_user")
     @PostMapping
-    public ResponseEntity<?> createRequest(@RequestBody SupportRequestDTO dto,
-                                                              Authentication authentication) {
+    public ResponseEntity<ResponseSuccess> createRequest(@RequestBody SupportRequestDTO dto,
+                                           Authentication authentication) {
         supportService.createRequest(dto, authentication);
-        return ResponseEntity.ok().build();
+        return ResponseEntity.ok(new ResponseSuccess());
     }
 
     @Autowired
