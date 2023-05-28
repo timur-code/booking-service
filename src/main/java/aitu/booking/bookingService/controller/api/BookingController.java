@@ -55,8 +55,8 @@ public class BookingController {
     }
 
     @GetMapping
-    public ResponseEntity<Page<Booking>> getBookings(@RequestParam int pageNum,
-                                                     @RequestParam int pageSize,
+    public ResponseEntity<Page<Booking>> getBookings(@RequestParam(defaultValue = "1") int pageNum,
+                                                     @RequestParam(defaultValue = "250") int pageSize,
                                                      Authentication authentication) {
         Page<Booking> page = bookingService.getUserBookings(authentication, pageNum, pageSize);
         return ResponseEntity.ok(page);
@@ -64,8 +64,8 @@ public class BookingController {
 
     @Secured("ROLE_restaurant_admin")
     @GetMapping("/by-restaurant")
-    public ResponseEntity<Page<Booking>> getBookings(@RequestParam int pageNum,
-                                                     @RequestParam int pageSize,
+    public ResponseEntity<Page<Booking>> getBookings(@RequestParam(defaultValue = "1") int pageNum,
+                                                     @RequestParam(defaultValue = "250") int pageSize,
                                                      @RequestParam Long restaurantId,
                                                      Authentication authentication) {
         Page<Booking> page = bookingService.getRestaurantBookings(restaurantId, pageNum, pageSize, authentication);
@@ -74,8 +74,8 @@ public class BookingController {
 
     @Secured("ROLE_admin")
     @GetMapping("/all")
-    public ResponseEntity<Page<Booking>> getAllBookings(@RequestParam int pageNum,
-                                                        @RequestParam int pageSize) {
+    public ResponseEntity<Page<Booking>> getAllBookings(@RequestParam(defaultValue = "1") int pageNum,
+                                                        @RequestParam(defaultValue = "250") int pageSize) {
         Page<Booking> page = bookingService.getAllBookings(pageNum, pageSize);
         return ResponseEntity.ok(page);
     }

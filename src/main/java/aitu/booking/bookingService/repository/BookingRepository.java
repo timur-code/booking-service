@@ -17,7 +17,6 @@ public interface BookingRepository extends JpaRepository<Booking, Long> {
     Optional<Booking> findByStripeSessionId(String sessionId);
     Page<Booking> findByUserIdOrderByCreatedAtDesc(UUID userId, Pageable pageable);
     Page<Booking> findByRestaurantIdOrderByCreatedAtDesc(Long restaurantId, Pageable pageable);
-    Page<Booking> findAllByOrderByCreatedAtDesc(Pageable pageable);
 
     @Query("SELECT b FROM Booking b WHERE b.restaurant = :restaurant AND " +
             "(b.startTime BETWEEN :startTime AND :endTime OR b.endTime BETWEEN :startTime AND :endTime)")

@@ -15,6 +15,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
@@ -103,7 +104,7 @@ public class BookingService {
     }
 
     public Page<Booking> getAllBookings(int pageNum, int pageSize) {
-        return bookingRepository.findAllByOrderByCreatedAtDesc(PageRequest.of(--pageNum, pageSize));
+        return bookingRepository.findAll(PageRequest.of(--pageNum, pageSize, Sort.by("createdAt").descending()));
     }
 
     public Booking getBookingById(Long id) {
