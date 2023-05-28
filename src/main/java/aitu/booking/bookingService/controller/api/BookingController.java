@@ -41,9 +41,16 @@ public class BookingController {
         return ResponseEntity.ok(new ResponseSuccessWithData<>(booking));
     }
 
-    @PostMapping("/{id}/cancel")
+    @PutMapping("/{id}/cancel")
     public ResponseEntity<?> cancelBooking(@PathVariable Long id, Authentication authentication) {
         bookingService.cancelBooking(id, authentication);
+        return ResponseEntity.ok().build();
+    }
+
+    @Secured({"ROLE_restaurant_admin", "ROLE_admin"})
+    @PutMapping("/{id}/cancel/admin")
+    public ResponseEntity<?> cancelBookingByAdmin(@PathVariable Long id) {
+        bookingService.cancelBookingByAdmin(id);
         return ResponseEntity.ok().build();
     }
 

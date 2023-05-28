@@ -122,6 +122,12 @@ public class BookingService {
         bookingRepository.save(booking);
     }
 
+    public void cancelBookingByAdmin(Long id) {
+        Booking booking = getBookingById(id);
+        booking.cancelBooking();
+        bookingRepository.save(booking);
+    }
+
     private List<BookingItem> saveBookingItems(List<CartItemDTO> preorder) {
         List<BookingItem> bookingItems = preorder.stream()
                 .map(cartItemDTO -> {
