@@ -31,7 +31,7 @@ public class MenuService extends BaseService {
     @Transactional
     public Menu addItemToMenu(CreateMenuItemDTO dto) throws InstanceNotFoundException {
         MenuItem menuItem = menuItemService.createMenuItem(dto);
-        Menu menu = getMenu(dto.getMenuId());
+        Menu menu = getMenu(dto.getRestaurantId()); //Они должны быть 1-1
         menu.addMenuItem(menuItem);
         return menuRepository.save(menu);
     }

@@ -56,7 +56,7 @@ public class StripeService {
                         .addAllLineItem(lineItems)
                         .setMode(SessionCreateParams.Mode.PAYMENT)
                         .setSuccessUrl(frontUrl + "/profile/cart/success?bookingId=" + bookingId)
-                        .setCancelUrl(frontUrl + "http://localhost:3000/profile/cart/cancel?bookingId=" + bookingId)
+                        .setCancelUrl(frontUrl + "/profile/cart/cancel?bookingId=" + bookingId)
                         .build();
 
         Session session = Session.create(params);

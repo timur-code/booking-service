@@ -9,10 +9,9 @@ import java.util.List;
 @Data
 @Builder
 public class CreateMenuItemDTO {
-    private Long menuId;
+    private Long restaurantId;
     private String name;
     private Integer price;
     private String description;
-    @ElementCollection
     private List<String> images;
 }

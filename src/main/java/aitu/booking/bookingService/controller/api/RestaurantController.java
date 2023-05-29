@@ -16,6 +16,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.annotation.Secured;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import javax.management.InstanceNotFoundException;
@@ -58,6 +59,19 @@ public class RestaurantController extends BaseController {
         } catch (InstanceNotFoundException | IndexOutOfBoundsException ex) {
             log.error("Error: {}", ex.getMessage(), ex);
             return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        }
+    }
+
+    @Secured({"ROLE_restaurant_admin"})
+    @GetMapping("/my-restaurant")
+    public ResponseEntity<RestaurantSmallDTO> getMyRestaurant(Authentication authentication) {
+        try {
+            RestaurantSmallDTO dto = restaurantService.getMyRestaurant(authentication);
+            return ResponseEntity.ok(dto);
+        } catch (IllegalAccessException ex) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        } catch (InstanceNotFoundException ex) {
+            return ResponseEntity.notFound().build();
         }
     }
 

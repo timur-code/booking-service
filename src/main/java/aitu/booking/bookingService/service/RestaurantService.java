@@ -52,6 +52,15 @@ public class RestaurantService extends BaseService {
                 .orElseThrow(InstanceNotFoundException::new);
     }
 
+    @Transactional(readOnly = true)
+    public RestaurantSmallDTO getMyRestaurant(Authentication authentication)
+            throws InstanceNotFoundException, IllegalAccessException {
+        UUID userId = KeycloakUtils.getUserUuidFromAuth(authentication);
+        Restaurant restaurant = restaurantRepository.findByAdmin_UserId(userId)
+                .orElseThrow(IllegalAccessException::new);
+        return toSmallDTO(restaurant);
+    }
+
     @Transactional
     public Restaurant addRestaurant(CreateRestaurantDTO restaurantDTO) {
         Restaurant restaurant = new Restaurant();
@@ -110,6 +119,8 @@ public class RestaurantService extends BaseService {
                 .id(restaurant.getId())
                 .name(restaurant.getName())
                 .description(restaurant.getDescription())
+                .image(restaurant.getImage())
+                .seats(restaurant.getSeats())
                 .build();
     }
 

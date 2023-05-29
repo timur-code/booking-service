@@ -9,4 +9,6 @@ public class RestaurantSmallDTO {
     private Long id;
     private String name;
     private String description;
+    private Integer seats;
+    private String image;
 }
