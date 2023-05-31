@@ -7,6 +7,7 @@ import lombok.ToString;
 import org.hibernate.annotations.Fetch;
 
 import javax.persistence.*;
+import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -24,6 +25,9 @@ public class Restaurant extends BaseModel {
     private List<Menu> menuList;
     @OneToOne
     private RestaurantAdmin admin;
+    private String location;
+    private LocalTime timeOpen;
+    private LocalTime timeClosed;
     private String image;
 
 

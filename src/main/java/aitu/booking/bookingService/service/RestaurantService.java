@@ -68,6 +68,9 @@ public class RestaurantService extends BaseService {
         restaurant.setDescription(restaurantDTO.getDescription());
         restaurant.setSeats(restaurantDTO.getSeats());
         restaurant.setImage(restaurantDTO.getImage());
+        restaurant.setTimeOpen(restaurantDTO.getTimeOpen());
+        restaurant.setTimeClosed(restaurantDTO.getTimeClosed());
+        restaurant.setLocation(restaurantDTO.getLocation());
         Restaurant res = restaurantRepository.save(restaurant);
 
         try {
@@ -121,6 +124,9 @@ public class RestaurantService extends BaseService {
                 .description(restaurant.getDescription())
                 .image(restaurant.getImage())
                 .seats(restaurant.getSeats())
+                .location(restaurant.getLocation())
+                .timeOpen(restaurant.getTimeOpen())
+                .timeClosed(restaurant.getTimeClosed())
                 .build();
     }
 

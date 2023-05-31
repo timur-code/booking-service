@@ -30,7 +30,7 @@ public class RestaurantController extends BaseController {
 
     @GetMapping("/list")
     public Page<RestaurantSmallDTO> list(@RequestParam(required = false, defaultValue = "1") int page,
-                                         @RequestParam(required = false, defaultValue = "100") int size) {
+                                         @RequestParam(required = false, defaultValue = "12") int size) {
         return restaurantService.list(page, size);
     }
 
