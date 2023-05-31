@@ -5,6 +5,7 @@ import aitu.booking.bookingService.dto.responses.ResponseSuccessWithData;
 import aitu.booking.bookingService.model.Booking;
 import aitu.booking.bookingService.service.BookingService;
 import lombok.extern.slf4j.Slf4j;
+import java.util.UUID;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
@@ -16,12 +17,12 @@ import org.springframework.web.bind.annotation.*;
 import javax.management.InstanceNotFoundException;
 
 @Slf4j
-@Secured("ROLE_user")
 @RestController
 @RequestMapping("/api/booking")
 public class BookingController {
     private BookingService bookingService;
 
+    @Secured("ROLE_user")
     @PostMapping
     public ResponseEntity<ResponseSuccessWithData<Booking>> bookRestaurant(@RequestBody CreateBookingDTO bookingDTO,
                                                                            Authentication authentication) {
@@ -35,12 +36,13 @@ public class BookingController {
     }
 
     @PostMapping("/{id}/confirm")
-    public ResponseEntity<ResponseSuccessWithData<Booking>> confirmBooking(@PathVariable Long id, Authentication authentication) {
-        Booking booking = bookingService.confirmPayment(id, authentication);
+    public ResponseEntity<ResponseSuccessWithData<Booking>> confirmBooking(@PathVariable Long id, @RequestParam UUID userId) {
+        Booking booking = bookingService.confirmPayment(id, userId);
         booking.setRestaurant(null);
         return ResponseEntity.ok(new ResponseSuccessWithData<>(booking));
     }
 
+    @Secured("ROLE_user")
     @PutMapping("/{id}/cancel")
     public ResponseEntity<?> cancelBooking(@PathVariable Long id, Authentication authentication) {
         bookingService.cancelBooking(id, authentication);
@@ -55,12 +57,14 @@ public class BookingController {
     }
 
 
+    @Secured("ROLE_user")
     @GetMapping("/{id}")
     public ResponseEntity<ResponseSuccessWithData<Booking>> getBooking(@PathVariable Long id) {
         Booking booking = bookingService.getBookingById(id);
         return ResponseEntity.ok(new ResponseSuccessWithData<>(booking));
     }
 
+    @Secured("ROLE_user")
     @GetMapping
     public ResponseEntity<Page<Booking>> getBookings(@RequestParam(defaultValue = "1") int pageNum,
                                                      @RequestParam(defaultValue = "250") int pageSize,

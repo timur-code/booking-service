@@ -81,11 +81,10 @@ public class BookingService {
         return bookingRepository.save(booking);
     }
 
-    public Booking confirmPayment(Long bookingId, Authentication authentication) {
+    public Booking confirmPayment(Long bookingId, UUID userId) {
         Booking booking = bookingRepository.findById(bookingId)
                 .orElseThrow(() -> new ApiException(404, "booking.not-found"));
 
-        UUID userId = KeycloakUtils.getUserUuidFromAuth(authentication);
         if (!booking.getUserId().equals(userId)) {
             throw new ApiException(401, "user.no-access");
         }
