@@ -14,10 +14,7 @@ import org.springframework.stereotype.Service;
 
 import javax.annotation.PostConstruct;
 import javax.management.InstanceNotFoundException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @Slf4j
 @Service
@@ -34,7 +31,7 @@ public class StripeService {
         Stripe.apiKey = apiKey;
     }
 
-    public Session createCheckoutSession(Long bookingId, List<CartItemDTO> cartItems) throws StripeException {
+    public Session createCheckoutSession(Long bookingId, List<CartItemDTO> cartItems, UUID userId) throws StripeException {
         List<Map<String, Object>> cartList = getMapFromCart(cartItems);
         List<SessionCreateParams.LineItem> lineItems = new ArrayList<>();
         for (Map<String, Object> item : cartList) {
@@ -55,7 +52,7 @@ public class StripeService {
                         .addPaymentMethodType(SessionCreateParams.PaymentMethodType.CARD)
                         .addAllLineItem(lineItems)
                         .setMode(SessionCreateParams.Mode.PAYMENT)
-                        .setSuccessUrl(frontUrl + "/profile/cart/success?bookingId=" + bookingId)
+                        .setSuccessUrl(frontUrl + "/profile/cart/success?bookingId=" + bookingId + "&userId=" + userId)
                         .setCancelUrl(frontUrl + "/profile/cart/cancel?bookingId=" + bookingId)
                         .build();
 

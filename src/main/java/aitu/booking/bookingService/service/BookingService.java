@@ -61,7 +61,7 @@ public class BookingService {
                     createBookingDTO.getGuests());
             booking = bookingRepository.save(booking);
             try {
-                session = stripeService.createCheckoutSession(booking.getId(), createBookingDTO.getPreorder());
+                session = stripeService.createCheckoutSession(booking.getId(), createBookingDTO.getPreorder(), userId);
 
                 log.info("Created Stripe Checkout Session: {}", session.getId());
             } catch (StripeException ex) {
