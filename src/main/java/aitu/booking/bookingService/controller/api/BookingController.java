@@ -1,5 +1,6 @@
 package aitu.booking.bookingService.controller.api;
 
+import aitu.booking.bookingService.dto.UserIdDTO;
 import aitu.booking.bookingService.dto.create.CreateBookingDTO;
 import aitu.booking.bookingService.dto.responses.ResponseSuccessWithData;
 import aitu.booking.bookingService.model.Booking;
@@ -36,8 +37,8 @@ public class BookingController {
     }
 
     @PostMapping("/{id}/confirm")
-    public ResponseEntity<ResponseSuccessWithData<Booking>> confirmBooking(@PathVariable Long id, @RequestParam UUID userId) {
-        Booking booking = bookingService.confirmPayment(id, userId);
+    public ResponseEntity<ResponseSuccessWithData<Booking>> confirmBooking(@PathVariable Long id, @RequestBody UserIdDTO dto) {
+        Booking booking = bookingService.confirmPayment(id, dto.getUserId());
         booking.setRestaurant(null);
         return ResponseEntity.ok(new ResponseSuccessWithData<>(booking));
     }
